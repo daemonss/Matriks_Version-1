@@ -8,7 +8,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator
 
 # Import logika dari file T2_2A_017.py
-from T2_2A_017 import tambah, kurang, kali, evaluasi
+from T2_2A_017 import evaluasi
 
 class MatrixInputDialog(QDialog):
     def __init__(self, parent=None, edit_mode=False, existing_matrix=None, var_name=""):
@@ -28,19 +28,26 @@ class MatrixInputDialog(QDialog):
         
         # Input untuk ukuran matriks
         size_layout = QHBoxLayout()
-        size_layout.addWidget(QLabel("Baris:"))
+        rows_label = QLabel("Baris:")
+        rows_label.setStyleSheet("font-weight: 500; font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; color: #ffffff;")
+        size_layout.addWidget(rows_label)
         self.rows_input = QSpinBox()
         self.rows_input.setMinimum(1)
         self.rows_input.setMaximum(10)
+        self.rows_input.setStyleSheet("QSpinBox { font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 6px; border: 1px solid #666666; border-radius: 4px; background-color: #4a4a4a; color: #ffffff; }")
         size_layout.addWidget(self.rows_input)
         
-        size_layout.addWidget(QLabel("Kolom:"))
+        cols_label = QLabel("Kolom:")
+        cols_label.setStyleSheet("font-weight: 500; font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; color: #ffffff;")
+        size_layout.addWidget(cols_label)
         self.cols_input = QSpinBox()
         self.cols_input.setMinimum(1)
         self.cols_input.setMaximum(10)
+        self.cols_input.setStyleSheet("QSpinBox { font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 6px; border: 1px solid #666666; border-radius: 4px; background-color: #4a4a4a; color: #ffffff; }")
         size_layout.addWidget(self.cols_input)
         
         self.confirm_size_btn = QPushButton("Buat Matriks")
+        self.confirm_size_btn.setStyleSheet("QPushButton { background-color: #388E3C; color: white; font-weight: 600; font-size: 12px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: none; border-radius: 6px; }")
         self.confirm_size_btn.clicked.connect(self.create_matrix_table)
         size_layout.addWidget(self.confirm_size_btn)
         
@@ -48,7 +55,7 @@ class MatrixInputDialog(QDialog):
         
         # Keyboard instructions
         keyboard_info = QLabel("💡 Tips: Gunakan Arrow Keys, Tab, atau Enter untuk navigasi antar sel")
-        keyboard_info.setStyleSheet("QLabel { color: #666; font-size: 10px; font-style: italic; }")
+        keyboard_info.setStyleSheet("QLabel { color: #cccccc; font-size: 11px; font-style: italic; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; background-color: #4a4a4a; padding: 6px; border-radius: 4px; }")
         keyboard_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(keyboard_info)
         
@@ -62,13 +69,47 @@ class MatrixInputDialog(QDialog):
         # Enable keyboard navigation
         self.matrix_table.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         
+        # Styling untuk tabel matriks
+        self.matrix_table.setStyleSheet("""
+            QTableWidget {
+                font-size: 13px;
+                font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+                gridline-color: #666666;
+                background-color: #4a4a4a;
+                alternate-background-color: #3a3a3a;
+                selection-background-color: #2196F3;
+                selection-color: white;
+            }
+            QTableWidget::item {
+                padding: 8px;
+                border: 1px solid #666666;
+                background-color: #4a4a4a;
+                color: #ffffff;
+            }
+            QTableWidget::item:selected {
+                background-color: #2196F3;
+                color: white;
+            }
+            QHeaderView::section {
+                background-color: #3a3a3a;
+                font-weight: 600;
+                font-size: 12px;
+                font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+                padding: 8px;
+                border: 1px solid #666666;
+                color: #ffffff;
+            }
+        """)
+        
         self.layout.addWidget(self.matrix_table)
         
         # Tombol konfirmasi dan cancel
         button_layout = QHBoxLayout()
         self.confirm_btn = QPushButton("Konfirmasi")
+        self.confirm_btn.setStyleSheet("QPushButton { background-color: #388E3C; color: white; font-weight: 600; font-size: 12px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: none; border-radius: 6px; }")
         self.confirm_btn.clicked.connect(self.confirm_matrix)
         self.cancel_btn = QPushButton("Batal")
+        self.cancel_btn.setStyleSheet("QPushButton { background-color: #D32F2F; color: white; font-weight: 600; font-size: 12px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: none; border-radius: 6px; }")
         self.cancel_btn.clicked.connect(self.reject)
         
         button_layout.addWidget(self.confirm_btn)
@@ -141,7 +182,6 @@ class MatrixInputDialog(QDialog):
         cols = self.matrix_table.columnCount()
         
         try:
-            # Paksa commit editor pada sel yang sedang aktif agar nilai terbaru tersimpan
             self.confirm_btn.setFocus()
             QApplication.processEvents()
 
@@ -173,11 +213,9 @@ class MatrixInputDialog(QDialog):
             
             self.matrix = np.array(matrix_data)
             
-            # Debug: Tampilkan matriks yang akan disimpan
             print(f"Matriks final yang disimpan:\n{self.matrix}")
             print(f"Shape: {self.matrix.shape}")
             
-            # Tutup dialog dengan status Accepted
             self.accept()
             
         except Exception as e:
@@ -191,15 +229,17 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1000, 700)
         self.setMinimumSize(800, 600)
         
-        # Data storage
+        # Set dark theme for main window
+        self.setStyleSheet("")
+        
         self.variables = {}
         
-        # Setup UI
         self.init_ui()
         
     def init_ui(self):
         # Central widget
         central_widget = QWidget()
+        central_widget.setStyleSheet("QWidget { background-color: #2b2b2b; color: #ffffff; }")
         self.setCentralWidget(central_widget)
         
         # Main layout
@@ -208,13 +248,16 @@ class MainWindow(QMainWindow):
         
         # Left panel for input
         left_panel = QGroupBox("📥 Input Variabel")
-        left_panel.setStyleSheet("QGroupBox { font-weight: bold; font-size: 14px; }")
+        left_panel.setStyleSheet("QGroupBox { font-weight: 600; font-size: 16px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; background-color: #3c3c3c; color: #ffffff; border: 2px solid #555555; border-radius: 8px; padding: 10px; }")
         left_layout = QVBoxLayout()
         
         # Variable type selection
         type_layout = QHBoxLayout()
-        type_layout.addWidget(QLabel("Jenis:"))
+        type_label = QLabel("Jenis:")
+        type_label.setStyleSheet("font-weight: 500; font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; color: #ffffff;")
+        type_layout.addWidget(type_label)
         self.var_type = QComboBox()
+        self.var_type.setStyleSheet("QComboBox { font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 6px; border: 1px solid #666666; border-radius: 4px; background-color: #4a4a4a; color: #ffffff; }")
         self.var_type.addItems(["Matriks", "Skalar"])
         self.var_type.currentTextChanged.connect(self.toggle_input_type)
         type_layout.addWidget(self.var_type)
@@ -222,9 +265,12 @@ class MainWindow(QMainWindow):
         
         # Variable name input
         name_layout = QHBoxLayout()
-        name_layout.addWidget(QLabel("Nama Variabel:"))
+        name_label = QLabel("Nama Variabel:")
+        name_label.setStyleSheet("font-weight: 500; font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; color: #ffffff;")
+        name_layout.addWidget(name_label)
         self.var_name = QLineEdit()
         self.var_name.setMaxLength(1)
+        self.var_name.setStyleSheet("QLineEdit { font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: 1px solid #666666; border-radius: 4px; background-color: #4a4a4a; color: #ffffff; }")
         name_layout.addWidget(self.var_name)
         left_layout.addLayout(name_layout)
         
@@ -233,9 +279,11 @@ class MainWindow(QMainWindow):
         # Scalar input
         scalar_layout = QHBoxLayout()
         self.scalar_label = QLabel("Nilai Skalar:")
+        self.scalar_label.setStyleSheet("font-weight: 500; font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; color: #ffffff;")
         scalar_layout.addWidget(self.scalar_label)
         self.scalar_input = QLineEdit()
         self.scalar_input.setText("0")
+        self.scalar_input.setStyleSheet("QLineEdit { font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: 1px solid #666666; border-radius: 4px; background-color: #4a4a4a; color: #ffffff; }")
         # Only allow numeric input (floats)
         validator = QDoubleValidator()
         validator.setNotation(QDoubleValidator.Notation.StandardNotation)
@@ -245,16 +293,17 @@ class MainWindow(QMainWindow):
         
         # Add variable button
         self.add_var_btn = QPushButton("➕ Tambah Variabel")
-        self.add_var_btn.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 8px; }")
+        self.add_var_btn.setStyleSheet("QPushButton { background-color: #F57C00; color: white; font-weight: 600; font-size: 12px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: none; border-radius: 6px; }")
         self.add_var_btn.clicked.connect(self.add_variable)
         left_layout.addWidget(self.add_var_btn)
         
         # List of variables
         vars_label = QLabel("Variabel Tersedia:")
-        vars_label.setStyleSheet("font-weight: bold; font-size: 12px;")
+        vars_label.setStyleSheet("font-weight: 500; font-size: 14px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; color: #ffffff;")
         left_layout.addWidget(vars_label)
         self.vars_list = QTextEdit()
         self.vars_list.setReadOnly(True)
+        self.vars_list.setStyleSheet("QTextEdit { font-size: 12px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: 1px solid #666666; border-radius: 4px; background-color: #4a4a4a; color: #ffffff; }")
         left_layout.addWidget(self.vars_list)
         
         # Variable selection for deletion and editing
@@ -262,25 +311,26 @@ class MainWindow(QMainWindow):
         
         # Label untuk kelola variabel
         manage_label = QLabel("Kelola Variabel:")
-        manage_label.setStyleSheet("font-weight: bold; font-size: 12px;")
+        manage_label.setStyleSheet("font-weight: 500; font-size: 14px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; color: #ffffff;")
         var_manage_layout.addWidget(manage_label)
         
         # Combo box untuk pilih variabel
         self.var_manage_combo = QComboBox()
         self.var_manage_combo.setPlaceholderText("Pilih variabel")
         self.var_manage_combo.setMinimumHeight(30)
+        self.var_manage_combo.setStyleSheet("QComboBox { font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 6px; border: 1px solid #666666; border-radius: 4px; background-color: #4a4a4a; color: #ffffff; }")
         var_manage_layout.addWidget(self.var_manage_combo)
         
         # Button layout for edit and delete
         button_manage_layout = QHBoxLayout()
         
         self.edit_var_btn = QPushButton("✏️ Edit")
-        self.edit_var_btn.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 8px 12px; font-size: 11px; min-width: 60px; }")
+        self.edit_var_btn.setStyleSheet("QPushButton { background-color: #F57C00; color: white; font-weight: 600; padding: 8px 12px; font-size: 12px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; min-width: 60px; border: none; border-radius: 6px; }")
         self.edit_var_btn.clicked.connect(self.edit_variable)
         button_manage_layout.addWidget(self.edit_var_btn)
         
         self.delete_var_btn = QPushButton("🗑️ Hapus")
-        self.delete_var_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; font-weight: bold; padding: 8px 12px; font-size: 11px; min-width: 60px; }")
+        self.delete_var_btn.setStyleSheet("QPushButton { background-color: #D32F2F; color: white; font-weight: 600; padding: 8px 12px; font-size: 12px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; min-width: 60px; border: none; border-radius: 6px; }")
         self.delete_var_btn.clicked.connect(self.delete_variable)
         button_manage_layout.addWidget(self.delete_var_btn)
         
@@ -294,30 +344,35 @@ class MainWindow(QMainWindow):
         
         # Right panel for operation and result
         right_panel = QGroupBox("⚙️ Operasi dan Hasil")
-        right_panel.setStyleSheet("QGroupBox { font-weight: bold; font-size: 14px; }")
+        right_panel.setStyleSheet("QGroupBox { font-weight: 600; font-size: 16px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; background-color: #3c3c3c; color: #ffffff; border: 2px solid #555555; border-radius: 8px; padding: 10px; }")
         right_layout = QVBoxLayout()
         
         # Expression input
-        right_layout.addWidget(QLabel("Ekspresi Operasi (contoh: A + B * C):"))
+        expr_label = QLabel("Ekspresi Operasi (contoh: A + B * C):")
+        expr_label.setStyleSheet("font-weight: 500; font-size: 14px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; margin-bottom: 5px; color: #ffffff;")
+        right_layout.addWidget(expr_label)
         self.expression_input = QLineEdit()
+        self.expression_input.setStyleSheet("QLineEdit { font-size: 13px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: 1px solid #666666; border-radius: 4px; background-color: #4a4a4a; color: #ffffff; }")
         right_layout.addWidget(self.expression_input)
         
         # Calculate button
         self.calc_btn = QPushButton("🚀 Hitung")
-        self.calc_btn.setStyleSheet("QPushButton { background-color: #2196F3; color: white; font-weight: bold; padding: 10px; font-size: 14px; }")
+        self.calc_btn.setStyleSheet("QPushButton { background-color: #388E3C; color: white; font-weight: 600; padding: 10px; font-size: 14px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; border: none; border-radius: 6px; }")
         self.calc_btn.clicked.connect(self.calculate_expression)
         right_layout.addWidget(self.calc_btn)
         
         # Result display
-        right_layout.addWidget(QLabel("📊 Hasil:"))
+        result_label = QLabel("📊 Hasil:")
+        result_label.setStyleSheet("font-weight: 500; font-size: 14px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; margin-bottom: 5px; color: #ffffff;")
+        right_layout.addWidget(result_label)
         self.result_display = QTextEdit()
         self.result_display.setReadOnly(True)
-        self.result_display.setStyleSheet("QTextEdit { background-color: #4C566A; border: 2px solid #ddd; border-radius: 5px; padding: 10px; font-family: 'Courier New', monospace; }")
+        self.result_display.setStyleSheet("QTextEdit { background-color: #2d2d2d; border: 2px solid #666666; border-radius: 5px; padding: 10px; font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 12px; font-weight: 400; color: #ffffff; }")
         right_layout.addWidget(self.result_display)
         
         # Clear result button (moved below result)
         self.clear_result_btn = QPushButton("🧹 Hapus Hasil")
-        self.clear_result_btn.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 8px; }")
+        self.clear_result_btn.setStyleSheet("QPushButton { background-color: #D32F2F; color: white; font-weight: 600; font-size: 12px; font-family: 'Segoe UI', 'SF Pro Display', 'Roboto', 'Helvetica Neue', Arial, sans-serif; padding: 8px; border: none; border-radius: 6px; }")
         self.clear_result_btn.clicked.connect(self.clear_result)
         right_layout.addWidget(self.clear_result_btn)
         
@@ -338,7 +393,6 @@ class MainWindow(QMainWindow):
     
     def add_variable(self):
         var_name = self.var_name.text().strip().upper()
-        # Validate variable name: one alphabetic letter A-Z
         if not var_name:
             QMessageBox.warning(self, "Error", "Nama variabel tidak boleh kosong!")
             return
